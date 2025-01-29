@@ -14,6 +14,8 @@ app = FastAPI()
 ############################################
 # Edit the code below this line
 ############################################
+global running_id_track
+running_id_track = 0
 
 
 @app.get("/")
@@ -36,6 +38,17 @@ async def create_task(task_data: TaskCreate):
     Returns:
         TaskRead: The created task data
     """
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO tasks (title, description, completed) VALUES (?, ?, ?)",
+        (task_data.title, task_data.description, task_data.completed),
+    )
+    conn.commit()   
+    conn.close()
+    running_id_track += 1
+    return [TaskRead(id=running_id_track, title=task_data.title, description=task_data.description, completed=task_data.completed)]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
@@ -51,6 +64,13 @@ async def get_tasks():
     Returns:
         list[TaskRead]: A list of all tasks in the database
     """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tasks")
+    rows = cursor.fetchall()
+    conn.close()
+    return [TaskRead(id=row["id"], title=row["title"], description=row["description"], completed=bool(row["completed"])) for row in rows]
+
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
@@ -67,6 +87,16 @@ async def update_task(task_id: int, task_data: TaskCreate):
     Returns:
         TaskRead: The updated task data
     """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE tasks SET title = ?, description = ?, completed = ? WHERE id = ?",
+        (task_data.title, task_data.description, task_data.completed, task_id),
+    )
+    
+    conn.commit()
+    conn.close()
+    return [TaskRead(id=task_id, title=task_data.title, description=task_data.description, completed=task_data.completed)]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
@@ -82,4 +112,11 @@ async def delete_task(task_id: int):
     Returns:
         dict: A message indicating that the task was deleted successfully
     """
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id))
+    conn.commit()
+    conn.close()
+    return ["The task was deleted successfully."]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
