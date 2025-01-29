@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import status
@@ -14,8 +15,7 @@ app = FastAPI()
 ############################################
 # Edit the code below this line
 ############################################
-global running_id_track
-running_id_track = 0
+import uuid
 
 
 @app.get("/")
@@ -48,7 +48,7 @@ async def create_task(task_data: TaskCreate):
     conn.commit()   
     conn.close()
     running_id_track += 1
-    return [TaskRead(id=running_id_track, title=task_data.title, description=task_data.description, completed=task_data.completed)]
+    return [TaskRead(id=uuid.uuid4(), title=task_data.title, description=task_data.description, completed=task_data.completed)]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
