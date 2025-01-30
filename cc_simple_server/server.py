@@ -46,8 +46,9 @@ async def create_task(task_data: TaskCreate):
         (task_data.title, task_data.description, task_data.completed),
     )
     conn.commit()   
+    cursor = conn.cursor()
     conn.close()
-    running_id_track += 1
+ 
     return [TaskRead(id=uuid.uuid4(), title=task_data.title, description=task_data.description, completed=task_data.completed)]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
@@ -68,6 +69,7 @@ async def get_tasks():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM tasks")
     rows = cursor.fetchall()
+    cursor = conn.cursor()
     conn.close()
     return [TaskRead(id=row["id"], title=row["title"], description=row["description"], completed=bool(row["completed"])) for row in rows]
 
@@ -95,6 +97,7 @@ async def update_task(task_id: int, task_data: TaskCreate):
     )
     
     conn.commit()
+    cursor = conn.cursor()
     conn.close()
     return [TaskRead(id=task_id, title=task_data.title, description=task_data.description, completed=task_data.completed)]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
@@ -117,6 +120,7 @@ async def delete_task(task_id: int):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id))
     conn.commit()
+    cursor = conn.cursor()
     conn.close()
     return ["The task was deleted successfully."]
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
