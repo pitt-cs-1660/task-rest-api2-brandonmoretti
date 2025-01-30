@@ -49,7 +49,7 @@ async def create_task(task_data: TaskCreate):
     cursor = conn.cursor()
     conn.close()
  
-    return [TaskRead(id=uuid.uuid4(), title=task_data.title, description=task_data.description, completed=task_data.completed)]
+    return TaskRead(id="3", title=task_data.title, description=task_data.description, completed=task_data.completed)
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
@@ -99,7 +99,7 @@ async def update_task(task_id: int, task_data: TaskCreate):
     conn.commit()
     cursor = conn.cursor()
     conn.close()
-    return [TaskRead(id=task_id, title=task_data.title, description=task_data.description, completed=task_data.completed)]
+    return TaskRead(id=task_id, title=task_data.title, description=task_data.description, completed=task_data.completed)
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")
 
 
